@@ -1,0 +1,32 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}New Page{% endblock %}
+
+{% block body %}
+
+<h1>New page</h1>
+{% if message %}
+{{ message }}
+{% endif %}
+
+<div class="container">
+    <form action="{% url 'entry:new_page' %}" method="post">
+        {% csrf_token %}
+        <div class="container">
+            <label for="title">Title</label>
+            <input class="form-control-md" type="text"  required name="title">
+        </div>
+        <div class="container" style="margin: 20px;">
+            <label for="text">Content</label>
+            <textarea style="height: 200px;"  class="form-control" name="text" required placeholder="Markdown syntax"></textarea>
+        </div>
+        <div>
+            <input class="btn btn-light" style="margin: 10px;" type="submit" value="Create" >
+        </div>
+    </form>
+</div>
+<div class="container" style="margin: 20px;">
+    <p>Discover more about markdown syntax at <a href="https://www.markdownguide.org/basic-syntax/">Markdwon syntax</a></p>
+</div>
+
+{% endblock %}

@@ -13,7 +13,7 @@ def index(request):
     })
 
 # To display an entry page
-def wiky(request, entry):
+def wiki(request, entry):
     # Get the list of all entries
     entry_list = util.list_entries()
     # Lower case the list to compare with entry, case-insensetive
@@ -22,7 +22,7 @@ def wiky(request, entry):
     if entry.lower() in entry_list: 
         text = markdown2.markdown(util.get_entry(entry))
         title = util.get_entry(entry)
-        return render(request, "encyclopedia/wiky.html", {
+        return render(request, "encyclopedia/wiki.html", {
             "entry": entry,
             "text": text, 
             "list": entry_list
@@ -38,15 +38,15 @@ def wiky(request, entry):
 def search(request):
     if request.method == "POST":
         entry = request.POST["q"]
+        # Convert all the entries in uppercase 
         list = util.list_entries()
         list = [x.upper() for x in list]
-        entry_up = entry.upper()
         # Is in the list
-        if entry_up in list:
-            return HttpResponseRedirect(reverse("entry:wiky", args=(entry, )))
+        if entry.upper() in list:
+            return HttpResponseRedirect(reverse("entry:wiki", args=(entry, )))
         # Isn't in the list
         else:
-            substring = [i for i in list if entry_up in i]
+            substring = [i for i in list if entry.upper() in i]
             return render(request, "encyclopedia/search.html", {
                 "substring": substring
             })
@@ -58,8 +58,12 @@ def new_page(request):
     if request.method == "POST":
         title = request.POST["title"]
         text = request.POST["text"]
+        # Check user submit empty field
+        if title == "" or text == "":
+            return render (request, "encyclopedia/new_page.html", {
+                "message" : "Can't save with an empty field"
+            })
         # Check if the entry already exists
-        # Get the entry list
         entry_list = util.list_entries()
         # Ignoring upper and lowercase
         entry_list = [x.lower() for x in entry_list]
@@ -67,26 +71,32 @@ def new_page(request):
             return render(request, "encyclopedia/new_page.html", {
                 "message": "This entry already exists"
             })
-        # Doesn't exists
+        # User submit valid input
         else: 
             util.save_entry(title, text)
-            return HttpResponseRedirect(reverse("entry:wiky", args=(title, )))
+            return HttpResponseRedirect(reverse("entry:wiki", args=(title, )))
     # user get the page
     else:
         return render(request, "encyclopedia/new_page.html")
     
 # Edit page
 def edit(request, entry):
+    text = util.get_entry(entry)
     if request.method == "POST":
-        # Same as new_page function
         title = request.POST["title"]
         text = request.POST["content"]
+        # User submit an empty input
+        if title == "" or text == "":
+            return render(request, "encyclopedia/edit.html", {
+                "message" : "Can't save with an empty field", 
+                "title" : entry, 
+                "text" : text
+            })
         entry_list = util.list_entries()
         entry_list = [x.lower() for x in entry_list]
         util.save_entry(title, text)
-        return HttpResponseRedirect(reverse("entry:wiky", args=(title, )))
+        return HttpResponseRedirect(reverse("entry:wiki", args=(title, )))
     else:
-        text = util.get_entry(entry)
         return render(request, "encyclopedia/edit.html", {
             "title": entry, 
             "text": text
@@ -96,4 +106,4 @@ def edit(request, entry):
 def caso(request):
     list = util.list_entries()
     entry = random.choice(list)
-    return HttpResponseRedirect(reverse("entry:wiky", args=(entry, )))
+    return HttpResponseRedirect(reverse("entry:wiki", args=(entry, )))

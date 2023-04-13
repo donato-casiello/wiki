@@ -36,3 +36,11 @@ textarea {
 .sidebar h2 {
     margin-top: 5px;
 }
+
+li > a {
+    color: black;
+}
+
+.btn {
+    border: 0.8px solid;
+}
